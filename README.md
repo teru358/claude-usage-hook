@@ -58,6 +58,7 @@ Set `CLAUDE_USAGE_INNER` to your existing command; its output is prefixed to the
 ## Notes
 
 - Percentages are what Claude Code reports; the per-turn delta is the difference between the value at prompt time and at Stop, so a turn that crosses a reset shows `-`.
+- Codex values come from `codex app-server` (JSON-RPC `account/rateLimits/read`, tested with codex-cli 0.157). If a newer CLI renames the method, only `bin/codex_usage.sh` needs updating.
 - Hook stdout is context for the model. If you don't want the model to see it, use only the status line.
 
 ## 日本語
