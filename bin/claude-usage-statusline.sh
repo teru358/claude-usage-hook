@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
-# Claude Code statusline: cache the rate limits Claude Code passes on stdin
-# (`rate_limits.five_hour` / `seven_day`) so the prompt hook can read them,
-# and print a compact usage line. Optionally wraps another statusline command.
+# Claude Code statusline shim: cache the rate limits Claude Code passes on stdin
+# (`rate_limits.five_hour` / `seven_day`) so the prompt hook can read them.
+# By default it changes NOTHING visible: it prints your existing status line
+# (CLAUDE_USAGE_INNER) unchanged, or just the model name if you had none.
+# A usage column is added only when you opt in with CLAUDE_USAGE_STATUSLINE=1.
 #
-# settings.json:
-#   "statusLine": {"type": "command", "command": "~/.claude/hooks/claude-usage-statusline.sh"}
+# settings.json (installed by /claude-usage-hook:setup after your confirmation):
+#   "statusLine": {"type": "command", "command": "CLAUDE_USAGE_INNER='<your old command>' <root>/bin/claude-usage-statusline.sh"}
 # env:
-#   CLAUDE_USAGE_DIR        cache dir (default: ${XDG_RUNTIME_DIR:-/tmp}/claude-usage-$UID)
-#   CLAUDE_USAGE_INNER      another statusline command to run first; its output is prefixed
-#   CLAUDE_USAGE_CODEX=0    disable the codex (OpenAI Codex CLI) column
+#   CLAUDE_USAGE_DIR           cache dir (default: ${XDG_RUNTIME_DIR:-/tmp}/claude-usage-$UID)
+#   CLAUDE_USAGE_INNER         your existing statusline command; its output is passed through
+#   CLAUDE_USAGE_STATUSLINE=1  also append "C 5h%/7d% | X 5h%/7d%" to the status line (opt-in)
+#   CLAUDE_USAGE_CODEX=0       disable the codex (OpenAI Codex CLI) lookup
 set -u
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 D=${CLAUDE_USAGE_DIR:-${XDG_RUNTIME_DIR:-/tmp}/claude-usage-$(id -u)}; mkdir -p "$D"
@@ -37,5 +40,8 @@ if [ -n "${CLAUDE_USAGE_INNER:-}" ]; then
 else
   inner=$(printf '%s' "$input" | python3 -c 'import json,sys;print("["+json.load(sys.stdin).get("model",{}).get("display_name","?")+"]")' 2>/dev/null)
 fi
-line=$(python3 "$here/claude-usage-hook.py" statusline "$D")
-[ -n "$line" ] && echo "${inner} | ${line}" || echo "$inner"
+if [ "${CLAUDE_USAGE_STATUSLINE:-0}" = "1" ]; then
+  line=$(python3 "$here/claude-usage-hook.py" statusline "$D")
+  [ -n "$line" ] && { echo "${inner:+$inner | }${line}"; exit 0; }
+fi
+echo "$inner"
