@@ -23,7 +23,7 @@ The status line only updates while Claude Code is running, so the first prompt o
 ## Install
 
 ```
-git clone https://github.com/<you>/claude-usage-hook
+git clone https://github.com/teru358/claude-usage-hook
 cd claude-usage-hook && ./install.sh          # copies to ~/.claude/hooks and prints the settings snippet
 ./install.sh --apply                          # or merge it into ~/.claude/settings.json (backup kept)
 ```
