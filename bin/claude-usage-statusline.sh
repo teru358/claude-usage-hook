@@ -11,6 +11,7 @@
 #   CLAUDE_USAGE_DIR           cache dir (default: ${XDG_RUNTIME_DIR:-/tmp}/claude-usage-$UID)
 #   CLAUDE_USAGE_INNER         your existing statusline command; its output is passed through
 #   CLAUDE_USAGE_STATUSLINE=1  also append "C 5h%/7d% | X 5h%/7d%" to the status line (opt-in)
+#   CLAUDE_USAGE_STATUSLINE=full  same, with reset times: "C 62%→18:30/71%→01 20:00"
 #   CLAUDE_USAGE_CODEX=0       disable the codex (OpenAI Codex CLI) lookup
 set -u
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -40,7 +41,7 @@ if [ -n "${CLAUDE_USAGE_INNER:-}" ]; then
 else
   inner=$(printf '%s' "$input" | python3 -c 'import json,sys;print("["+json.load(sys.stdin).get("model",{}).get("display_name","?")+"]")' 2>/dev/null)
 fi
-if [ "${CLAUDE_USAGE_STATUSLINE:-0}" = "1" ]; then
+if [ "${CLAUDE_USAGE_STATUSLINE:-0}" = "1" ] || [ "${CLAUDE_USAGE_STATUSLINE:-0}" = "full" ]; then
   line=$(python3 "$here/claude-usage-hook.py" statusline "$D")
   [ -n "$line" ] && { echo "${inner:+$inner | }${line}"; exit 0; }
 fi

@@ -15,7 +15,8 @@ import time
 
 mode, D = sys.argv[1], sys.argv[2]
 S = os.path.join(D, "usage-hook-state.json")
-LANG = os.environ.get("CLAUDE_USAGE_LANG", "en")
+LANG = os.environ.get("CLAUDE_USAGE_LANG") or ("ja" if os.environ.get("LANG", "").startswith("ja") else "en")
+STYLE = os.environ.get("CLAUDE_USAGE_STATUSLINE", "0")  # "1" = percentages, "full" = with reset times
 
 
 def load(p):
@@ -76,11 +77,25 @@ def save():
 have_codex = os.environ.get("CLAUDE_USAGE_CODEX", "1") != "0" and (cur["x5"] is not None or cur["x7"] is not None)
 
 if mode == "statusline":
+    def short(ts):
+        if not ts:
+            return ""
+        t = dt.datetime.fromtimestamp(ts).astimezone()
+        same_day = t.date() == dt.datetime.now().astimezone().date()
+        if LANG == "ja":
+            return "→" + (t.strftime("%H:%M") if same_day else t.strftime("%d日%H:%M"))
+        return "→" + (t.strftime("%H:%M") if same_day else t.strftime("%d %H:%M"))
+
+    def cell(v, r):
+        if v is None:
+            return "-"
+        return f"{v}%" + (short(r) if STYLE == "full" else "")
+
     parts = []
     if cur["c5"] is not None or cur["c7"] is not None:
-        parts.append(f"C {cur['c5'] if cur['c5'] is not None else '-'}%/{cur['c7'] if cur['c7'] is not None else '-'}%")
+        parts.append(f"C {cell(cur['c5'], cur['c5r'])}/{cell(cur['c7'], cur['c7r'])}")
     if have_codex:
-        parts.append(f"X {cur['x5'] if cur['x5'] is not None else '-'}%/{cur['x7'] if cur['x7'] is not None else '-'}%")
+        parts.append(f"X {cell(cur['x5'], cur['x5r'])}/{cell(cur['x7'], cur['x7r'])}")
     print(" | ".join(parts))
     sys.exit(0)
 

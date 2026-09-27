@@ -53,9 +53,9 @@ The shim passes your existing status line through (`CLAUDE_USAGE_INNER`, set by 
 | var | default | meaning |
 |---|---|---|
 | `CLAUDE_USAGE_DIR` | `${XDG_RUNTIME_DIR:-/tmp}/claude-usage-$UID` | cache directory |
-| `CLAUDE_USAGE_STATUSLINE` | `0` | `1` appends `C 5h%/7d% \| X 5h%/7d%` to the status line |
+| `CLAUDE_USAGE_STATUSLINE` | `0` | `1` appends `C 5h%/7d% \| X 5h%/7d%` to the status line; `full` adds reset times (`C 62%→18:30/71%→01 20:00`) |
 | `CLAUDE_USAGE_CODEX` | `1` | `0` disables the Codex lookup/column |
-| `CLAUDE_USAGE_LANG` | `en` | `ja` for Japanese labels |
+| `CLAUDE_USAGE_LANG` | auto | `ja` for Japanese labels and dates (auto when `LANG` starts with `ja`) |
 | `TZ` | system | reset times are shown in local time |
 
 ## Files
