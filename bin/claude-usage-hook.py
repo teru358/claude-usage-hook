@@ -73,7 +73,7 @@ def save():
     os.replace(tmp, S)
 
 
-have_codex = cur["x5"] is not None or cur["x7"] is not None
+have_codex = os.environ.get("CLAUDE_USAGE_CODEX", "1") != "0" and (cur["x5"] is not None or cur["x7"] is not None)
 
 if mode == "statusline":
     parts = []
