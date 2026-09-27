@@ -20,7 +20,17 @@ Claude Code passes `rate_limits` (five_hour / seven_day, used_percentage, resets
 
 The status line only updates while Claude Code is running, so the first prompt of a session may show stale or empty values.
 
-## Install
+## Install as a plugin
+
+```
+/plugin marketplace add teru358/claude-usage-hook
+/plugin install claude-usage-hook@claude-usage-hook
+/claude-usage-hook:setup
+```
+
+The plugin installs the two hooks. `setup` adds the status line entry to `~/.claude/settings.json` (plugins cannot set `statusLine`; the status line is what caches the rate limits, so the hooks print nothing until it is wired).
+
+## Install standalone
 
 ```
 git clone https://github.com/teru358/claude-usage-hook
