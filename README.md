@@ -56,6 +56,7 @@ The shim passes your existing status line through (`CLAUDE_USAGE_INNER`, set by 
 | `CLAUDE_USAGE_STATUSLINE` | `0` | `1` appends `C 5h%/7d% \| X 5h%/7d%` to the status line; `full` adds reset times (`C 62%→18:30/71%→01 20:00`) |
 | `CLAUDE_USAGE_CODEX` | `1` | `0` disables the Codex lookup/column |
 | `CLAUDE_USAGE_LANG` | auto | `ja` for Japanese labels and dates (auto when `LANG` starts with `ja`) |
+| `CLAUDE_USAGE_CLOCK` | `1` | prepends a `[clock] 2026-10-13 Tue 20:46 JST (UTC+09:00)` line (local zone, honours `TZ`) to every prompt; `0` disables |
 | `TZ` | system | reset times are shown in local time |
 
 ## Files
@@ -74,6 +75,6 @@ The shim passes your existing status line through (`CLAUDE_USAGE_INNER`, set by 
 
 ## 日本語
 
-Claude Code の残量 (5 時間枠 / 7 日枠) を毎プロンプトで会話に注入し、前ターンの消費量も出す hook です。statusLine の stdin にだけ `rate_limits` が来るので、statusline でキャッシュに落とし、UserPromptSubmit hook が読んで context に出します。Codex CLI の残量も並べられます。`./install.sh --apply` で `~/.claude/settings.json` に組み込み。`CLAUDE_USAGE_LANG=ja` で日本語ラベル。
+Claude Code の残量 (5 時間枠 / 7 日枠) を毎プロンプトで会話に注入し、前ターンの消費量と現在時刻 (`[clock]`、ローカル時刻帯) も出す hook です。statusLine の stdin にだけ `rate_limits` が来るので、statusline でキャッシュに落とし、UserPromptSubmit hook が読んで context に出します。Codex CLI の残量も並べられます。`./install.sh --apply` で `~/.claude/settings.json` に組み込み。`CLAUDE_USAGE_LANG=ja` で日本語ラベル。
 
 MIT

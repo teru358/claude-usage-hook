@@ -1,7 +1,7 @@
 {
   "name": "claude-usage-hook",
-  "version": "0.2.1",
-  "description": "Show Claude Code quota (5h / 7d) and the previous turn's consumption in the conversation on every prompt; optional OpenAI Codex column.",
+  "version": "0.2.2",
+  "description": "Show Claude Code quota (5h / 7d), the previous turn's consumption and the local clock in the conversation on every prompt; optional OpenAI Codex column.",
   "author": { "name": "teru358" },
   "repository": "https://github.com/teru358/claude-usage-hook",
   "license": "MIT",

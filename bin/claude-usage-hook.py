@@ -17,6 +17,19 @@ mode, D = sys.argv[1], sys.argv[2]
 S = os.path.join(D, "usage-hook-state.json")
 LANG = os.environ.get("CLAUDE_USAGE_LANG") or ("ja" if os.environ.get("LANG", "").startswith("ja") else "en")
 STYLE = os.environ.get("CLAUDE_USAGE_STATUSLINE", "0")  # "1" = percentages, "full" = with reset times
+CLOCK = os.environ.get("CLAUDE_USAGE_CLOCK", "1")  # "0" hides the [clock] line on each prompt
+
+
+def clock_line():
+    """Local wall-clock time in the machine's zone (honours TZ / /etc/localtime)."""
+    now = dt.datetime.now().astimezone()
+    offset = now.strftime("%z")
+    offset = f"{offset[:3]}:{offset[3:]}" if offset else ""
+    zone = now.tzname() or ""
+    if LANG == "ja":
+        wd = "月火水木金土日"[now.weekday()]
+        return f"[clock] {now.strftime('%Y-%m-%d')} ({wd}) {now.strftime('%H:%M')} {zone} (UTC{offset})"
+    return f"[clock] {now.strftime('%Y-%m-%d %a %H:%M')} {zone} (UTC{offset})"
 
 
 def load(p):
@@ -112,7 +125,7 @@ if mode == "stop":
 line = f"[usage] Claude: {fmt(cur['c5'], cur['c7'], cur['c5r'], cur['c7r'])}"
 if have_codex:
     line += f" | codex: {fmt(cur['x5'], cur['x7'], cur['x5r'], cur['x7r'])}"
-lines = [line]
+lines = ([clock_line()] if CLOCK != "0" else []) + [line]
 lt = st.get("last_turn")
 if lt:
     def pm(v):

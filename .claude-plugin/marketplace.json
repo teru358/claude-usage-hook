@@ -7,7 +7,7 @@
     {
       "name": "claude-usage-hook",
       "description": "Show Claude Code quota (5h / 7d) and per-turn consumption in the conversation; optional Codex column.",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "source": "./",
       "author": { "name": "teru358" }
     }
