@@ -1,6 +1,6 @@
 {
   "name": "claude-usage-hook",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Show Claude Code quota (5h / 7d, plus model-scoped weekly limits such as Fable), the previous turn's consumption and the local clock in the conversation on every prompt; optional OpenAI Codex column.",
   "author": { "name": "teru358" },
   "repository": "https://github.com/teru358/claude-usage-hook",
