@@ -35,7 +35,7 @@ The plugin installs the two hooks. `setup` shows the `settings.json` change and 
 - `C 12%/68% | X 2%/12%` — percentages only (`CLAUDE_USAGE_STATUSLINE=1`)
 - `Do not show` — do not touch the status line; the hooks stay installed but print nothing
 
-The question is asked in the conversation's language (Japanese labels are 「割合とリセット時刻」「割合のみ」「表示しない」). It writes `settings.json` (after a backup) only when you pick one of the first two. Plugins cannot set `statusLine` themselves, and the shim is what caches the rate limits, so the `[usage]` lines appear only once it is wired. An existing status line is wrapped, not replaced: its input and output pass through unchanged.
+The question is asked in the conversation's language. It writes `settings.json` (after a backup) only when you pick one of the first two. Plugins cannot set `statusLine` themselves, and the shim is what caches the rate limits, so the `[usage]` lines appear only once it is wired. An existing status line is wrapped, not replaced: its input and output pass through unchanged.
 
 ## Install standalone
 
