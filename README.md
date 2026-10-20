@@ -56,7 +56,7 @@ The shim passes your existing status line through (`CLAUDE_USAGE_INNER`, set by 
 | `CLAUDE_USAGE_DIR` | `${XDG_RUNTIME_DIR:-/tmp}/claude-usage-$UID` | cache directory |
 | `CLAUDE_USAGE_STATUSLINE` | `0` | `1` appends `C 5h%/7d% \| X 5h%/7d%` to the status line; `full` adds reset times (`C 62%→18:30/71%→01 20:00`) |
 | `CLAUDE_USAGE_CODEX` | `1` | `0` disables the Codex lookup/column |
-| `CLAUDE_USAGE_SCOPED` | `1` | `0` disables the model-scoped weekly limits (e.g. `Fable 7d 91%`), which come from the claude.ai OAuth usage API (`~/.claude/.credentials.json` token, cached 5 min) because the status line payload only carries 5h / 7d |
+| `CLAUDE_USAGE_SCOPED` | `1` | `0` disables the model-scoped weekly limits (e.g. `Fable 7d 91%`, prompt line only, not the status line), which come from the claude.ai OAuth usage API (`~/.claude/.credentials.json` token, cached 5 min) because the status line payload only carries 5h / 7d |
 | `CLAUDE_USAGE_LANG` | auto | `ja` for Japanese labels and dates (auto when `LANG` starts with `ja`) |
 | `CLAUDE_USAGE_CLOCK` | `1` | prepends a `[clock] 2026-10-13 Tue 20:46 JST (UTC+09:00)` line (local zone, honours `TZ`) to every prompt; `0` disables |
 | `TZ` | system | reset times are shown in local time |

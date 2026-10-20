@@ -115,12 +115,9 @@ if mode == "statusline":
     parts = []
     if cur["c5"] is not None or cur["c7"] is not None:
         parts.append(f"C {cell(cur['c5'], cur['c5r'])}/{cell(cur['c7'], cur['c7r'])}")
-    for i in range(3):
-        if cur.get(f"s{i}") is not None:
-            parts.append(f"{cur[f's{i}n'][:1]} {cell(cur[f's{i}'], cur[f's{i}r'])}")
     if have_codex:
         parts.append(f"X {cell(cur['x5'], cur['x5r'])}/{cell(cur['x7'], cur['x7r'])}")
-    print(" | ".join(parts))
+    print(" | ".join(parts))  # model-scoped limits are shown in the prompt line only (status line stays short)
     sys.exit(0)
 
 if mode == "stop":
