@@ -7,10 +7,10 @@ The plugin's hooks are already active, but they print nothing until the status-l
 2. Read `~/.claude/settings.json` and prepare the change (do not write yet):
    - no `statusLine` yet: `"statusLine": {"type": "command", "command": "$ROOT/bin/claude-usage-statusline.sh"}` (absolute path, no variables). The status line will show only the model name.
    - existing `statusLine` command: keep it and wrap it: `"command": "CLAUDE_USAGE_INNER='<existing command>' $ROOT/bin/claude-usage-statusline.sh"`. Its output is passed through unchanged.
-3. Show the user the exact before/after JSON, then ask exactly one question with AskUserQuestion: 「ステータスラインの使用量表示をどうしますか？」 with exactly three options whose labels are sample status-line text, not setting names (the `description` of each option says what it means):
+3. Show the user the exact before/after JSON, then ask exactly one question with AskUserQuestion, in the language of the conversation (Japanese wording below; in English: "How should the status line show usage?", descriptions "percentages and reset times" / "percentages only" / "Do not show: leave the status line alone, hooks only"): 「ステータスラインの使用量表示をどうしますか？」 with exactly three options whose labels are sample status-line text, not setting names (the `description` of each option says what it means):
    - label `C 12%→02:00/68%→22日20:00 | X 2%→02:21/12%→27日16:00` — description 「割合とリセット時刻 (CLAUDE_USAGE_STATUSLINE=full)」
    - label `C 12%/68% | X 2%/12%` — description 「割合のみ (CLAUDE_USAGE_STATUSLINE=1)」
-   - label `表示しない` — description 「ステータスラインを表示しない。hook 導入のみ」 (stop here)
+   - label `表示しない` (English: `Do not show`) — description 「ステータスラインを表示しない。hook 導入のみ」 (stop here)
    No "(recommended)" label. Wrapping an existing status line is non-destructive (its input and output pass through unchanged), so no second confirmation is needed.
 4. After one of the two sample options: back up `settings.json` (`settings.json.bak.<timestamp>`), write the change, and tell the user the `[usage]` lines appear from the next prompt onward.
 
