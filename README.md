@@ -29,7 +29,13 @@ The status line only updates while Claude Code is running, so the first prompt o
 /claude-usage-hook:setup
 ```
 
-The plugin installs the two hooks. `setup` shows the `settings.json` change and applies it **only after you confirm** (plugins cannot set `statusLine`; the shim is what caches the rate limits, so the hooks print nothing until it is wired). Nothing visible changes in the status line unless you opt in to the column.
+The plugin installs the two hooks. `setup` shows the `settings.json` change and asks one question, with the options rendered as sample status-line text:
+
+- `C 12%→02:00/68%→22日20:00 | X 2%→02:21/12%→27日16:00` — percentages and reset times (`CLAUDE_USAGE_STATUSLINE=full`)
+- `C 12%/68% | X 2%/12%` — percentages only (`CLAUDE_USAGE_STATUSLINE=1`)
+- 表示しない — do not touch the status line; the hooks stay installed but print nothing
+
+It writes `settings.json` (after a backup) only when you pick one of the first two. Plugins cannot set `statusLine` themselves, and the shim is what caches the rate limits, so the `[usage]` lines appear only once it is wired. An existing status line is wrapped, not replaced: its input and output pass through unchanged.
 
 ## Install standalone
 
@@ -78,6 +84,6 @@ The shim passes your existing status line through (`CLAUDE_USAGE_INNER`, set by 
 
 ## 日本語
 
-Claude Code の残量 (5 時間枠 / 7 日枠) を毎プロンプトで会話に注入し、前ターンの消費量と現在時刻 (`[clock]`、ローカル時刻帯) も出す hook です。statusLine の stdin にだけ `rate_limits` が来るので、statusline でキャッシュに落とし、UserPromptSubmit hook が読んで context に出します。Codex CLI の残量も並べられます。`./install.sh --apply` で `~/.claude/settings.json` に組み込み。`CLAUDE_USAGE_LANG=ja` で日本語ラベル。
+Claude Code の残量 (5 時間枠 / 7 日枠、Fable などモデル別の週次枠があればそれも) を毎プロンプトで会話に注入し、前ターンの消費量と現在時刻 (`[clock]`、ローカル時刻帯) も出す hook です。statusLine の stdin にだけ `rate_limits` が来るので、statusline でキャッシュに落とし、UserPromptSubmit hook が読んで context に出します。Codex CLI の残量も並べられます。`/claude-usage-hook:setup` (または `./install.sh --apply`) で `~/.claude/settings.json` に組み込み。setup の質問は 1 回で、選択肢は実際の statusline の見た目 (割合 + リセット時刻 / 割合のみ / 表示しない = hook 導入のみ)。既存の statusline は包むだけで置き換えない。`CLAUDE_USAGE_LANG=ja` で日本語ラベル。
 
 MIT
