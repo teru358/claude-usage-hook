@@ -1,11 +1,11 @@
 # claude-usage-hook
 
-Shows your Claude Code quota (5-hour / 7-day windows) **inside the conversation**, on every prompt, plus how much the previous turn consumed and the local wall-clock time. Optionally shows OpenAI Codex CLI quota next to it.
+Shows your Claude Code quota (5-hour / 7-day windows, plus any model-scoped weekly limit such as Fable) **inside the conversation**, on every prompt, plus how much the previous turn consumed and the local wall-clock time. Optionally shows OpenAI Codex CLI quota next to it.
 
 ```
 [clock] 2026-10-13 Tue 20:46 JST (UTC+09:00)
-[usage] Claude: 5h 53% (reset 27 18:30) / 7d 70% (reset 01 20:00) | codex: 5h 44% (reset 27 19:46) / 7d 20% (reset 04 09:45)
-[usage] last turn: Claude 5h +1pt / 7d +0pt, codex 5h +0pt / 7d +0pt (68 s)
+[usage] Claude: 5h 53% (reset 27 18:30) / 7d 70% (reset 01 20:00) | Fable 7d 91% (reset 01 20:00) | codex: 5h 44% (reset 27 19:46) / 7d 20% (reset 04 09:45)
+[usage] last turn: Claude 5h +1pt / 7d +0pt, Fable 7d +1pt, codex 5h +0pt / 7d +0pt (68 s)
 ```
 
 Why: the model can then pace itself (delegate to a cheaper lane, wait for a reset, know how long until that reset) without you pasting numbers or the time in. Your status line is left as it is; a compact `C 53%/70% | X 44%/20%` column is available as an opt-in.
@@ -15,7 +15,7 @@ Why: the model can then pace itself (delegate to a cheaper lane, wait for a rese
 Claude Code passes `rate_limits` (five_hour / seven_day, used_percentage, resets_at) to the **statusLine** command on stdin. Nothing else exposes it, so:
 
 1. `claude-usage-statusline.sh` is a shim in front of your status line: it caches that JSON to `$CLAUDE_USAGE_DIR/claude-usage.json` and prints your existing status line unchanged (`CLAUDE_USAGE_INNER`). With `CLAUDE_USAGE_STATUSLINE=1` it also appends a usage column.
-2. `claude-usage-hook.sh prompt` (**UserPromptSubmit** hook) prints the `[clock]` line and the `[usage]` lines from the cache; Claude Code adds hook stdout to the context.
+2. `claude-usage-hook.sh prompt` (**UserPromptSubmit** hook) prints the `[clock]` line and the `[usage]` lines from the cache; Claude Code adds hook stdout to the context. The `Fable 7d NN%` part comes from the claude.ai OAuth usage API (`limits[]`, `kind=weekly_scoped`), fetched by `claude_scoped_usage.py` and cached for 5 minutes; it is shown in the prompt line only, never in the status line.
 3. `claude-usage-hook.sh stop` (**Stop** hook) snapshots the values so the next prompt can show the per-turn delta.
 4. Codex: `codex_usage.sh` asks `codex app-server` (JSON-RPC `account/rateLimits/read`), cached 5 minutes, refreshed in the background so nothing blocks.
 
