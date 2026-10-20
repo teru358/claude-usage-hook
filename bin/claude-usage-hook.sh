@@ -13,4 +13,11 @@ if [ "${CLAUDE_USAGE_CODEX:-1}" != "0" ] && command -v codex >/dev/null 2>&1; th
     setsid bash -c '"$1" --json > "$0.tmp" 2>/dev/null && mv "$0.tmp" "$0"' "$cache" "$here/codex_usage.sh" >/dev/null 2>&1 < /dev/null &
   fi
 fi
+if [ "${CLAUDE_USAGE_SCOPED:-1}" != "0" ]; then
+  cache=$D/claude-scoped.json; age=999999
+  [ -f "$cache" ] && age=$(( $(date +%s) - $(stat -c %Y "$cache") ))
+  if [ "$age" -gt 300 ] && ! pgrep -f "[c]laude_scoped_usage.py" >/dev/null; then
+    setsid bash -c 'python3 "$1" > "$0.tmp" 2>/dev/null && mv "$0.tmp" "$0"' "$cache" "$here/claude_scoped_usage.py" >/dev/null 2>&1 < /dev/null &
+  fi
+fi
 exec python3 "$here/claude-usage-hook.py" "${1:-prompt}" "$D"

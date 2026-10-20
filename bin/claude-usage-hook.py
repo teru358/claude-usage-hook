@@ -5,6 +5,7 @@ modes: prompt (UserPromptSubmit) / stop (Stop) / statusline (one-line summary)
 Cache layout in <dir>:
   claude-usage.json  {"ts":..., "rate_limits": {"five_hour": {"used_percentage", "resets_at"}, "seven_day": {...}}}
   codex-usage.json   {"primary": {"usedPercent", "resetsAt"}, "secondary": {...}}   (codex app-server rateLimits)
+  claude-scoped.json [{"name": "Fable", "percent", "resets_at", "severity"}]   (model-scoped weekly limits, OAuth usage API)
   usage-hook-state.json  last prompt/stop snapshot, used for the per-turn delta
 """
 import datetime as dt
@@ -57,6 +58,13 @@ cur = {
     "x5r": (x.get("primary") or {}).get("resetsAt"),
     "x7r": (x.get("secondary") or {}).get("resetsAt"),
 }
+scoped = [r for r in (load(os.path.join(D, "claude-scoped.json")) or []) if isinstance(r, dict) and r.get("name")]
+if os.environ.get("CLAUDE_USAGE_SCOPED", "1") == "0":
+    scoped = []
+for i, r in enumerate(scoped[:3]):
+    cur[f"s{i}"] = pct(r.get("percent"))
+    cur[f"s{i}r"] = r.get("resets_at")
+    cur[f"s{i}n"] = r["name"]
 st = load(S) or {}
 
 
@@ -107,6 +115,9 @@ if mode == "statusline":
     parts = []
     if cur["c5"] is not None or cur["c7"] is not None:
         parts.append(f"C {cell(cur['c5'], cur['c5r'])}/{cell(cur['c7'], cur['c7r'])}")
+    for i in range(3):
+        if cur.get(f"s{i}") is not None:
+            parts.append(f"{cur[f's{i}n'][:1]} {cell(cur[f's{i}'], cur[f's{i}r'])}")
     if have_codex:
         parts.append(f"X {cell(cur['x5'], cur['x5r'])}/{cell(cur['x7'], cur['x7r'])}")
     print(" | ".join(parts))
@@ -115,7 +126,8 @@ if mode == "statusline":
 if mode == "stop":
     p = st.get("prompt")
     if p:
-        st["last_turn"] = {k: delta(p, k) for k in ("c5", "c7", "x5", "x7")}
+        st["last_turn"] = {k: delta(p, k) for k in ("c5", "c7", "x5", "x7", "s0", "s1", "s2")}
+        st["last_turn"]["names"] = {k: cur.get(f"{k}n") for k in ("s0", "s1", "s2") if cur.get(f"{k}n")}
         st["last_turn"]["sec"] = round(cur["ts"] - p["ts"])
     st["stop"] = cur
     save()
@@ -123,6 +135,9 @@ if mode == "stop":
 
 # mode == "prompt"
 line = f"[usage] Claude: {fmt(cur['c5'], cur['c7'], cur['c5r'], cur['c7r'])}"
+for i in range(3):
+    if cur.get(f"s{i}") is not None:
+        line += f" | {cur[f's{i}n']} 7d {cur[f's{i}']}% (reset {when(cur[f's{i}r'])})"
 if have_codex:
     line += f" | codex: {fmt(cur['x5'], cur['x7'], cur['x5r'], cur['x7r'])}"
 lines = ([clock_line()] if CLOCK != "0" else []) + [line]
@@ -132,6 +147,9 @@ if lt:
         return "-" if v is None else f"+{v}pt"
     label = "前ターンの消費" if LANG == "ja" else "last turn"
     s = f"[usage] {label}: Claude 5h {pm(lt['c5'])} / 7d {pm(lt['c7'])}"
+    for k, name in (lt.get("names") or {}).items():
+        if lt.get(k) is not None:
+            s += f", {name} 7d {pm(lt[k])}"
     if have_codex:
         s += f", codex 5h {pm(lt['x5'])} / 7d {pm(lt['x7'])}"
     s += f" ({lt['sec']} s)"

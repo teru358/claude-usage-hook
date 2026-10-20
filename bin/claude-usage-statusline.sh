@@ -25,6 +25,15 @@ d=json.load(sys.stdin).get("rate_limits")
 d and print(json.dumps({"ts":time.time(),"rate_limits":d}))' > "$D/claude-usage.json.tmp" 2>/dev/null \
   && [ -s "$D/claude-usage.json.tmp" ] && mv "$D/claude-usage.json.tmp" "$D/claude-usage.json"
 
+# 1b. refresh the model-scoped weekly limits (OAuth usage API) in the background
+if [ "${CLAUDE_USAGE_SCOPED:-1}" != "0" ]; then
+  cache=$D/claude-scoped.json; age=999999
+  [ -f "$cache" ] && age=$(( $(date +%s) - $(stat -c %Y "$cache") ))
+  if [ "$age" -gt 300 ] && ! pgrep -f "[c]laude_scoped_usage.py" >/dev/null; then
+    setsid bash -c 'python3 "$1" > "$0.tmp" 2>/dev/null && mv "$0.tmp" "$0"' "$cache" "$here/claude_scoped_usage.py" >/dev/null 2>&1 < /dev/null &
+  fi
+fi
+
 # 2. refresh the codex cache in the background (app-server call takes ~6 s)
 if [ "${CLAUDE_USAGE_CODEX:-1}" != "0" ] && command -v codex >/dev/null 2>&1; then
   cache=$D/codex-usage.json; age=999999
